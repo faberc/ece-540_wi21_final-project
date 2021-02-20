@@ -38,7 +38,7 @@ jump_array = {0b00, 0b00, 0b00, 0b01, 0b00, 0b00, 0b00, 0b10, 0b00, 0b00 ...}
 global_points = 0               // Number of points to start with
 points_increment = 10           // Number of points to increase by
 
-main:
+function main ()
 rope_location = half_width      // Start rope in center of screen
 Wait for start_game input
 if (start_game):
@@ -59,7 +59,7 @@ if (start_game):
                 rope_up()
         end case
     end for
-
+end function: main
 
 function rope_down ()
     thresh1 = false             // jump acceleration requirement not met
@@ -67,7 +67,7 @@ function rope_down ()
     for (i=half_vga_width; i <= vga_width; i++):        // Starting from center, move down to row 768
         rope_location = i
         delay(hbd / half_width)             // movement time: half beat divided by the the number of rows
-        if (i > 768-action_window):
+        if (i > 768-action_window):         // When rope is within action window...
             measurement = take_measurement
             if (measurement > acceleration_threshold):
                 thresh1 = true
@@ -75,16 +75,16 @@ function rope_down ()
     for (i = vga_width; i <= half_vga_width; i--):      // Starting from row 768, move back to center
         rope_location = i
         delay(hbd / half_width)
-        if (i > 768-action_window):
+        if (i > 768-action_window):         // When rope is within action window...
             measurement = take_measurement
             if (measurement < -1 * acceleration_threshold):     // threshold made negative and measurement must be less than it
                 thresh2 = true
     end for
     if (thresh1 && thresh2):
-        points += points_increment                              // If acceleration profile matches that of a jump, award points
+        global_points += points_increment                              // If acceleration profile matches that of a jump, award points
         write points to sev seg display
     else display miss
-
+end function: rope_down
 
 function rope_up ()
     thresh1 = false             // jump acceleration requirement not met
@@ -102,14 +102,15 @@ function rope_up ()
         delay(hbd / half_width)             // time between each frame
         if (i < action_window):
             measurement = take_measurement
-            if (measurement > acceleration_threshold):   // moving int he pos Z direction (standing back up)
+            if (measurement > acceleration_threshold):   // moving in the pos Z direction (standing back up)
                 thresh2 = true
     end for
     if (thresh1 && thresh2):
-        points += points_increment                       // If acceleration profile mathes that of a duck, award points
+        global_points += points_increment                       // If acceleration profile mathes that of a duck, award points
         write points to sev seg display
     else:
         display miss
+end function: rope_up
 
 function rope_center():
     keep rope at center
